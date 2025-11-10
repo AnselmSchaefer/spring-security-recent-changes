@@ -9,15 +9,25 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
+import java.util.Collections;
+
 
 public class RobotFilter extends OncePerRequestFilter {
+
+    private final String HEADER_NAME = "x-robot-password";
+
     @Override
     protected void doFilterInternal(
             HttpServletRequest request,
             HttpServletResponse response,
             FilterChain filterChain) throws ServletException, IOException {
+        // 0. Should the filter be executed?
+        if(!Collections.list(request.getHeaderNames()).contains(HEADER_NAME)) {
+            filterChain.doFilter(request, response);
+            return;
+        }
         // 1. AuthenticationDecision
-        var password = request.getHeader("x-robot-password");
+        var password = request.getHeader(HEADER_NAME);
         if(!"beep-boop".equals(password)) {
             response.setStatus(HttpStatus.FORBIDDEN.value());
             response.setCharacterEncoding("utf-8");
@@ -34,7 +44,7 @@ public class RobotFilter extends OncePerRequestFilter {
         filterChain.doFilter(request, response);
         return;
 
-        // 2. Do the Rest
+        // 2. Do the rest (cleanup)
 
     }
 }

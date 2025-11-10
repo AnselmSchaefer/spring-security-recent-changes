@@ -32,7 +32,7 @@ public class SecurityConfig {
                 // go to Google to get them: https://console.cloud.google.com  => you have to specify a redirect URI like this: http://localhost:8080/login/oauth2/code/google
                 .oauth2Login(withDefaults())
                 // in powershell:  Invoke-WebRequest -Uri "http://localhost:8080/api/private" -Headers @{"x-robot-password" = "beep-boop"} -Method Get -Verbose
-                // best practice instead UsernamePasswordAuthenticationFilter: FilterSecurityInterceptor.class 
+                // best practice instead UsernamePasswordAuthenticationFilter: FilterSecurityInterceptor.class
                 .addFilterBefore(new RobotFilter(), UsernamePasswordAuthenticationFilter.class)
                 .build();
     }
