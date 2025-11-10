@@ -20,10 +20,13 @@ public class SecurityConfig {
     public DefaultSecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         return http
                 .authorizeHttpRequests(authorizeConfig -> {
-                    authorizeConfig.requestMatchers("/api/private").authenticated();
-                    authorizeConfig.anyRequest().permitAll();
+                    authorizeConfig.requestMatchers("/").permitAll();
+                    authorizeConfig.requestMatchers("/error").permitAll();
+                    authorizeConfig.anyRequest().authenticated();
                 })
                 .formLogin(withDefaults())
+                // go to Google to get them: https://console.cloud.google.com  => you have to specify a redirect URI like this: http://localhost:8080/login/oauth2/code/google
+                .oauth2Login(withDefaults())
                 .build();
     }
 

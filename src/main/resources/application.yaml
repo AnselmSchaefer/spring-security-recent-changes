@@ -1,3 +1,10 @@
 spring:
   application:
     name: spring-security-demo
+  security:
+    oauth2:
+      client:
+        registration:
+          google:
+            client-id: 304534559431-02cjnqe31083iom3s5v6ic7loc942bmr.apps.googleusercontent.com
+            client-secret: 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
