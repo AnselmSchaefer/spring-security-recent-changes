@@ -2,6 +2,7 @@ package com.anselm.spring_security_demo.controller;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.core.oidc.user.OidcUser;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -16,6 +17,8 @@ public class TestController {
 
     private static final Log log = LogFactory.getLog(TestController.class);
 
+    // possible but not best practice: use filter chain to protect endpoints
+    @PreAuthorize("isAuthenticated() and hasRole('specialrole')")
     @GetMapping("/test")
     public String getHello() {
         return "Hello World :)";

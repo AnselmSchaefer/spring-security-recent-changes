@@ -3,6 +3,7 @@ package com.anselm.spring_security_demo.config;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.Customizer;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.core.userdetails.User;
@@ -14,6 +15,7 @@ import static org.springframework.security.config.Customizer.withDefaults;
 
 @Configuration
 @EnableWebSecurity
+@EnableMethodSecurity
 public class SecurityConfig {
 
     @Bean
@@ -36,7 +38,7 @@ public class SecurityConfig {
                 User.builder()
                         .username("user")
                         .password("{bcrypt}$2a$10$e23WF/KW7f7ST/zRxUDjbeWuUtTFrLdLKLiSB/Rv25B0KOo0mzMOS")
-                        .authorities("ROLE_user")
+                        .authorities("ROLE_specialrole")
                         .build()
         );
     }
