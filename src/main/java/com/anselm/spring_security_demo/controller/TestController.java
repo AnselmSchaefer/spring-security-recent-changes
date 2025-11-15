@@ -24,6 +24,12 @@ public class TestController {
         return "Hello World :)";
     }
 
+    @PreAuthorize("isAuthenticated() and hasRole('admin')")
+    @GetMapping("/admin")
+    public String getAdmin() {
+        return "Hello on Admin Page";
+    }
+
     @GetMapping("/private")
     public String getPrivateHello(Authentication authentication) {
         return "Hello " + this.getName(authentication);

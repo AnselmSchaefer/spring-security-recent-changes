@@ -5,6 +5,8 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.filter.OncePerRequestFilter;
 
@@ -15,6 +17,12 @@ import java.util.Collections;
 public class RobotFilter extends OncePerRequestFilter {
 
     private final String HEADER_NAME = "x-robot-password";
+
+    private final AuthenticationManager authenticationManager;
+
+    public RobotFilter(AuthenticationManager authenticationManager) {
+        this.authenticationManager = authenticationManager;
+    }
 
     @Override
     protected void doFilterInternal(
@@ -28,21 +36,25 @@ public class RobotFilter extends OncePerRequestFilter {
         }
         // 1. AuthenticationDecision
         var password = request.getHeader(HEADER_NAME);
-        if(!"beep-boop".equals(password)) {
+        var authRequest = RobotAuthentication.unauthenticated(password);
+
+        try {
+            var authentication = authenticationManager.authenticate(authRequest);
+
+            // immutability => don't take the existing SecurityContext and change it but you create a new one
+            var newContext = SecurityContextHolder.createEmptyContext();
+            // set this authentication object
+            newContext.setAuthentication(authentication);
+            SecurityContextHolder.setContext(newContext);
+            filterChain.doFilter(request, response);
+            return;
+        } catch (AuthenticationException e) {
             response.setStatus(HttpStatus.FORBIDDEN.value());
             response.setCharacterEncoding("utf-8");
-            response.setHeader("Content-type", "text/plain;charset=utf-8");
-            response.getWriter().println("You are not Ms Robot");
+            response.setHeader("Content-type","text/plain;charset=utf-8");
+            response.getWriter().println(e.getMessage());
             return;
         }
-
-        var newContext = SecurityContextHolder.createEmptyContext();
-        newContext.setAuthentication(
-                new RobotAuthentication()
-        );
-        SecurityContextHolder.setContext(newContext);
-        filterChain.doFilter(request, response);
-        return;
 
         // 2. Do the rest (cleanup)
 
