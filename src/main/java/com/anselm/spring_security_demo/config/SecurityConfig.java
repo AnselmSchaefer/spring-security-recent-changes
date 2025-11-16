@@ -7,9 +7,12 @@ import org.springframework.context.ApplicationListener;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationEventPublisher;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.ProviderManager;
 import org.springframework.security.authentication.event.AuthenticationSuccessEvent;
 import org.springframework.security.config.Customizer;
+import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -29,8 +32,31 @@ import static org.springframework.security.config.Customizer.withDefaults;
 @EnableMethodSecurity
 public class SecurityConfig {
 
+    // (1) use global provider Manager instead
+    /*
     @Bean
-    public DefaultSecurityFilterChain securityFilterChain(HttpSecurity http, AuthenticationEventPublisher publisher) throws Exception {
+    public AuthenticationManager authenticationManager(
+            HttpSecurity http,
+            AuthenticationEventPublisher publisher) throws Exception {
+
+        var authManagerBuilder = http.getSharedObject(AuthenticationManagerBuilder.class);
+        authManagerBuilder.authenticationEventPublisher(publisher);
+        authManagerBuilder.authenticationProvider(new RobotAuthenticationProvider(List.of("beep-boop", "boop-beep")));
+        authManagerBuilder.authenticationProvider(new AnselmAuthenticationProvider());
+        return authManagerBuilder.build();
+    }
+     */
+
+    @Bean
+    public DefaultSecurityFilterChain securityFilterChain(
+            HttpSecurity http,
+            AuthenticationEventPublisher publisher
+            // (2) use global provider Manager instead
+            /*
+            ,
+            AuthenticationManager globalProviderManager
+            */
+    ) throws Exception {
 
         // both is allowed as header value
         var authManager = new ProviderManager(
@@ -49,6 +75,11 @@ public class SecurityConfig {
                 // in powershell:  Invoke-WebRequest -Uri "http://localhost:8080/api/private" -Headers @{"x-robot-password" = "beep-boop"} -Method Get -Verbose
                 // best practice instead UsernamePasswordAuthenticationFilter: FilterSecurityInterceptor.class
                 .addFilterBefore(new RobotFilter(authManager), UsernamePasswordAuthenticationFilter.class)
+
+                // (3) use global provider Manager instead
+                //.addFilterBefore(new RobotFilter(globalProviderManager), UsernamePasswordAuthenticationFilter.class)
+                //.authenticationProvider(new RobotAuthenticationProvider(List.of("beep-boop", "boop-beep")))
+
                 .authenticationProvider(new AnselmAuthenticationProvider())
                 .build();
     }
